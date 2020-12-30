@@ -353,16 +353,12 @@ void MonsertRespond(CBasePlayer@ pPlayer, Vector vecOrigin)
 			pMonster.m_hTargetEnt = pMonster.m_hEnemy = pPlayer;
 			pMonster.m_vecEnemyLKP = vecOrigin;
 			pMonster.SetConditions(bits_COND_HEAR_SOUND | bits_COND_SEE_ENEMY);
-			pMonster.m_afSoundTypes &= bits_SOUND_PLAYER;
+			pMonster.m_afSoundTypes |= bits_SOUND_PLAYER;
         }
     }
 
     if(@pMonster !is null)
     {
-        if(pMonster.pev.spawnflags & SF_MONSTER_WAIT_TILL_SEEN != 0)
-            pMonster.pev.spawnflags &= ~SF_MONSTER_WAIT_TILL_SEEN;
-		pMonster.SetConditions(bits_COND_SEE_CLIENT);
-
         g_SoundSystem.PlaySound(
             pMonster.edict(), 
             CHAN_AUTO, 
@@ -407,5 +403,6 @@ void PluginInit()
 
 void MapInit()
 {
+    dicPlayerBank.deleteAll();
     PrecacheAll();
 }
