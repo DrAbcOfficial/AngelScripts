@@ -15,6 +15,8 @@ const float flFreezeTime = 2;
 const float flRespondDelay = 2.0f;
 //how long you keeping suppress status when gotting shot
 const float flPanicTime = 3;
+//will monsters take the initiative to taunt players?
+const bool bIsInitiative = true;
 //blacklist or whitelist monster
 const array<string> aryAvaliable = {
     "monster_*"
@@ -69,6 +71,8 @@ enum MONSTERSPAWNFLAG
 array<CVoiceData@> aryVoiceBank;
 //Player data storage
 dictionary dicPlayerBank;
+//iniative schedule
+CScheduledFunction@ pSchedule = null;
 //Voice data item class
 class CVoiceData
 {
@@ -260,11 +264,11 @@ void Voice(const CCommand@ pArgs)
 			}
 	}
     //print message to all players
-    g_PlayerFuncs.SayTextAll(pPlayer, string(pPlayer.pev.netname) + ": " + szAlertMessage + "\n");
+    g_PlayerFuncs.SayText(pPlayer, string(pPlayer.pev.netname) + ": " + szAlertMessage + "\n");
     //play sound sample
     g_SoundSystem.PlaySound(
         pPlayer.edict(), 
-        CHAN_AUTO, 
+        CHAN_VOICE, 
         aryVoiceBank[pData.iVoiceType].GetRndSound(GetPlayerVoiceType(pData)), 
         1.0f, 1.0f);
     //delay set monster responding
@@ -296,7 +300,7 @@ bool IsMonsterInScripts(CBaseMonster@ pMonster)
     Get monster uuid by multi method
     be taunting monster: ref
 **/
-int GetMonsterUID(CBaseMonster@ pMonster)
+int GetMonsterUID(CBaseEntity@ pMonster)
 {
     switch(iMonsterUID)
     {
@@ -314,7 +318,7 @@ int GetMonsterUID(CBaseMonster@ pMonster)
 **/
 int IsMonsterSuppress(CBaseMonster@ pMonster)
 {
-	if(pMonster.m_MonsterState & MONSTERSTATE_COMBAT != 0 || pMonster.m_MonsterState & MONSTERSTATE_ALERT != 0)
+    if(pMonster.m_Activity >= ACT_TWITCH && pMonster.m_Activity < ACT_DISARM)
 		return VOICE_RESSUP;
 	return VOICE_RESNORMAL;
 }
@@ -352,8 +356,8 @@ void MonsertRespond(CBasePlayer@ pPlayer, Vector vecOrigin)
             pMonster.PushEnemy(pPlayer, vecOrigin);
 			pMonster.m_hTargetEnt = pMonster.m_hEnemy = pPlayer;
 			pMonster.m_vecEnemyLKP = vecOrigin;
+            pMonster.m_vecMoveGoal = pPlayer.pev.origin;
 			pMonster.SetConditions(bits_COND_HEAR_SOUND | bits_COND_SEE_ENEMY);
-			pMonster.m_afSoundTypes |= bits_SOUND_PLAYER;
         }
     }
 
@@ -361,7 +365,7 @@ void MonsertRespond(CBasePlayer@ pPlayer, Vector vecOrigin)
     {
         g_SoundSystem.PlaySound(
             pMonster.edict(), 
-            CHAN_AUTO, 
+            CHAN_VOICE, 
             aryVoiceBank[GetMonsterUID(pMonster) % aryVoiceBank.length()].GetRndSound( IsMonsterSuppress(pMonster) ), 
 			1.0f, 1.0f);
     }
@@ -405,4 +409,34 @@ void MapInit()
 {
     dicPlayerBank.deleteAll();
     PrecacheAll();
+    g_Scheduler.RemoveTimer(pSchedule);
+    if(bIsInitiative)
+        @pSchedule = g_Scheduler.SetInterval("MonsterInitiativTaunt", 5.0f, g_Scheduler.REPEAT_INFINITE_TIMES);
+}
+
+void MonsterInitiativTaunt()
+{
+    CBaseEntity@ pEntity = null;
+	while((@pEntity = g_EntityFuncs.FindEntityByClassname(pEntity, "monster_*")) !is null)
+	{
+        if(!pEntity.IsAlive() || !pEntity.IsMonster())
+            continue;
+        CBaseMonster@ pMonster = cast<CBaseMonster@>(@pEntity);
+        if(!pMonster.m_hEnemy.IsValid())
+            continue;
+        if(bIsEnable)
+        {
+            if(aryAvaliable.find(string(pEntity.pev.classname)) < 0 && !bIsBlackList)
+                continue;
+            else if (aryAvaliable.find(string(pEntity.pev.classname)) >= 0 && bIsBlackList)
+                continue;
+        }
+		if(!pMonster.FVisible(pMonster.m_hEnemy.GetEntity(), true))
+        {
+            g_SoundSystem.PlaySound(pMonster.edict(), CHAN_VOICE, 
+            aryVoiceBank[GetMonsterUID(pMonster) % aryVoiceBank.length()].GetRndSound( IsMonsterSuppress(pMonster) ), 
+			1.0f, 1.0f);
+            break;
+        }
+	}
 }
