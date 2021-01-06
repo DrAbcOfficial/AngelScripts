@@ -36,7 +36,7 @@ class CObserverGhost : ScriptBaseAnimating
 
 		Precache();
 
-		self.pev.movetype = MOVETYPE_FOLLOW;
+		self.pev.movetype = MOVETYPE_NOCLIP;
 		self.pev.solid = SOLID_NOT;
 		self.pev.colormap = self.pev.owner.vars.colormap;
 		self.pev.rendermode = kRenderTransAdd;
