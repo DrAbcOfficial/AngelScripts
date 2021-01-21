@@ -113,7 +113,7 @@ array<EHandle> IntToModels(int t, Vector vecOrigin, RGBA rgbColor = RGBA(255, 25
             pSpr.pev.movetype = MOVETYPE_NOCLIP;
             pSpr.pev.solid = SOLID_NOT;
             pSpr.pev.velocity = Vector(0, 0, 25);
-            pSpr.SUB_StartFadeOut();
+            pSpr.Expand(-0.08f, 300.0f);
             aryTemp[i] = pSpr;
         }
     }
@@ -138,28 +138,45 @@ class CHandleMonster
         vecPos.z = (Monster.GetEntity().pev.absmax + g_Engine.v_up * flHealthBarOffset * flSprScale).z;
         return vecPos;
     }
+
+    MONSTERSTATE GetMonsterState()
+    {
+        if(!Monster.IsValid())
+            return MONSTERSTATE_NONE;
+        CBaseMonster@ pMonster = cast<CBaseMonster@>(Monster.GetEntity());
+        if(pMonster is null)
+            return MONSTERSTATE_NONE;
+        return pMonster.m_MonsterState;
+    }
     bool IsValid
     {
         get { return Monster.IsValid() ? Monster.GetEntity().IsAlive() : false;}
+    }
+    bool IsHealthBarValid()
+    {
+        return Spr.IsValid();
+    }
+
+    void InitHealthBar()
+    {
+        if(!Monster.IsValid())
+            return;
+        flSprScale = (Monster.GetEntity().pev.size.x / vecStandardSize.x + Monster.GetEntity().pev.size.y / vecStandardSize.y + Monster.GetEntity().pev.size.z / vecStandardSize.z) / 3;
+        RGBA rgbColor = Monster.GetEntity().IsPlayerAlly() ? RGBA(0, 255, 0, 255) : RGBA(255, 0, 0, 255);
+        CSprite@ pSpr = g_EntityFuncs.CreateSprite(szHealthBarModel, HealthBarPos(), false);
+        pSpr.pev.framerate = 0;
+        pSpr.pev.frame = 0;
+        pSpr.pev.scale = flHealthBarScale * flSprScale;
+        pSpr.SetTransparency(kRenderTransAdd, rgbColor.r, rgbColor.g, rgbColor.b, rgbColor.a, kRenderFxNone);
+        pSpr.pev.movetype = MOVETYPE_NOCLIP;
+        pSpr.pev.solid = SOLID_NOT;
+        Spr = pSpr;
     }
     CHandleMonster (CBaseEntity@ pMonster)
     {
         Monster = pMonster;
         Pos = pMonster.Center() + g_Engine.v_up * 16;
         oldHealth = pMonster.pev.health;
-        if(bEnableHealthBar)
-        {
-            flSprScale = (pMonster.pev.size.x / vecStandardSize.x + pMonster.pev.size.y / vecStandardSize.y + pMonster.pev.size.z / vecStandardSize.z) / 3;
-            RGBA rgbColor = pMonster.IsPlayerAlly() ? RGBA(0, 255, 0, 255) : RGBA(255, 0, 0, 255);
-            CSprite@ pSpr = g_EntityFuncs.CreateSprite(szHealthBarModel, HealthBarPos(), false);
-            pSpr.pev.framerate = 0;
-            pSpr.pev.frame = 0;
-            pSpr.pev.scale = flHealthBarScale * flSprScale;
-            pSpr.SetTransparency(kRenderTransAdd, rgbColor.r, rgbColor.g, rgbColor.b, rgbColor.a, kRenderFxNone);
-            pSpr.pev.movetype = MOVETYPE_NOCLIP;
-            pSpr.pev.solid = SOLID_NOT;
-            Spr = pSpr;
-        }
     }
     void CheckHealth()
     {
@@ -215,8 +232,10 @@ void CheckMonster()
         if(pMonster.IsAlive() && pMonster.IsMonster() && pMonster.pev.takedamage != DAMAGE_NO && pMonster.pev.max_health > 0)
         {
             int iIndex = findIndex(pMonster);
-            if( iIndex < 0)
+            if(iIndex < 0)
                 aryHandle.insertLast(@CHandleMonster(pMonster));
+            else if(bEnableHealthBar && !aryHandle[iIndex].IsHealthBarValid() && aryHandle[iIndex].GetMonsterState() > 1 && aryHandle[iIndex].GetMonsterState() < 5)
+                aryHandle[iIndex].InitHealthBar();
         }
     }
 
