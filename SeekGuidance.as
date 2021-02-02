@@ -299,6 +299,13 @@ array<string>@ FileReader(string szPath)
 void DrawGuidance(const CCommand@ pArgs) 
 {
     CBasePlayer@ pPlayer = g_ConCommandSystem.GetCurrentPlayer();
+    if(pPlayer !is null || !pPlayer.IsNetClient()){
+        return;
+    }
+    if(!pPlayer.IsAlive()){
+        g_PlayerFuncs.ClientPrint(pPlayer, HUD_PRINTCONSOLE, "未死的诅咒尚未降临, 你还不需要用这种方式留下信息\n");
+        return;
+    }
     uint index1 = 0;
     uint dicIndex1 = 0;
     uint wordIndex1 = 0;
