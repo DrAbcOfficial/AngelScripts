@@ -25,11 +25,17 @@ void MapInit()
     ReadGuidanceFromBlob();
     szLastMapname = g_Engine.mapname;
 }
-
+//模型
 const string szModel = "models/misc/guidance.mdl";
+//储存路径，需要自己新建文件夹
 const string szRootPath = "scripts/plugins/store/seekguidance/";
+//建言储存时间
 const int iMaxKeepDay = 30;
+//一张图最多有多少建言
 const uint uiMaxKeepPerMap = 96;
+//一个玩家一张图最多写多少建言
+const uint uiMaxKeepPerPlayer = 3;
+//指令
 const string szCommand = "drawguidance";
 dictionary dicPlayerCount = {};
 string szLastMapname;
@@ -48,11 +54,11 @@ dictionary dicWord = {
         "猎头蟹", "僵尸", "外星部队", "士兵", "特工", "重装战士"
         "双人组", "三人行", "你", "您", "伙伴", "你这家伙", "好人", "坏人", "强大的敌人",
         "可爱的家伙", "可怜的家伙", "奇怪的家伙", "敏捷的家伙", "迟钝的家伙", "卑鄙的家伙", 
-        "有钱人", "穷人", "骗子", "胖子", "瘦子", "年轻人", "老年人", "老爷爷", "老婆婆", "老师", "英雄", "王者"
+        "有钱人", "穷人", "骗子", "胖子", "瘦子", "年轻人", "老年人", "老爷爷", "老婆婆", "老师", "英雄", "王者", "藤壶"
     }},
     {"物品", array<string> = {
         "强力物品", "垃圾残渣", "火箭筒", "霰弹枪", "步枪", "手枪", "狙击枪", "能量武器", "近战武器", "爆炸物", "箱子", "按钮", "门", 
-        "电池", "血包", "障碍物", "弹药", "陷阱", "管道", "状态物", "重要物品", "工具箱"
+        "电池", "血包", "障碍物", "弹药", "陷阱", "管道", "状态物", "重要物品", "工具箱", "胖次", "巨大宝箱"
     }},
     {"战术", array<string> = {
         "近身战", "远距离战", "逐个击破", "诱出", "包围击破", "伏击", "夹击", 
@@ -64,7 +70,7 @@ dictionary dicWord = {
     }},
     {"环境", array<string> = {
         "岩浆", "毒气", "辐射", "蒸汽", "大群敌人", "泥沼", "洞窟", "近路", "远路", "隐藏道路", "小路", "死胡同", "迷宫", "洞穴", 
-        "光亮的场所", "昏暗的场所", "宽阔的场所", "狭小的场所", "安全区域", "危险区域", "狙击点", "梯子", "升降机", "通风管", "绝景"
+        "光亮的场所", "昏暗的场所", "宽阔的场所", "狭小的场所", "安全区域", "危险区域", "狙击点", "梯子", "升降机", "通风管", "绝景", "可破坏物"
     }},
     {"方位", array<string> = {
         "前", "后", "左", "右", "上", "下", "脚下", "头上", "背后"
@@ -81,7 +87,11 @@ dictionary dicWord = {
     {"独语", array<string> = {
         "加油", "做的好", "我成功了!", "看我干的好事....", "在这里!", "不是这里!", "我想放弃了....", "好孤单....", "你不是对手!", 
         "干掉他!", "仔细看", "仔细听", "想清楚", "又是这里....", "好戏就要登场", "你没资格", "别停下来", "快回头", "放弃吧", "别放弃", 
-        "救救我....", "怎么可能....", "太高了....", "好想离开....", "别慌张", "好像在做梦", "做好心里准备了吗?", "你迟早会有同样的下场", "太阳万岁!", "愿火焰将您引导"
+        "救救我....", "怎么可能....", "太高了....", "好想离开....", "别慌张", "好像在做梦", "做好心里准备了吗?", "你迟早会有同样的下场", "太阳万岁!", "愿火焰将您引导",
+        "跳下去吧, 不会死的", "未到洛城者, 就不该到此处"
+    }},
+	{"颜色", array<string> = {
+        "红", "橙", "黄", "绿", "青", "蓝", "紫", "黑", "白", "灰", "棕", "靛", "五彩斑斓", "暗淡无光"
     }}
 };
 
@@ -196,7 +206,7 @@ void ReadGuidanceFromBlob()
         array<string> szLine = pBlob[i].Split("\t");
         if(dicPlayerCount.exists(szLine[0])){
             int iCount = int(dicPlayerCount[szLine[0]]);
-            if(iCount < 3)
+            if(iCount < uiMaxKeepPerPlayer)
                 dicPlayerCount[szLine[0]] = iCount+1;
             else
                 continue;
@@ -299,7 +309,7 @@ array<string>@ FileReader(string szPath)
 void DrawGuidance(const CCommand@ pArgs) 
 {
     CBasePlayer@ pPlayer = g_ConCommandSystem.GetCurrentPlayer();
-    if(pPlayer !is null || !pPlayer.IsNetClient()){
+    if(pPlayer is null || !pPlayer.IsNetClient()){
         return;
     }
     if(!pPlayer.IsAlive()){
@@ -389,7 +399,7 @@ void DrawGuidance(const CCommand@ pArgs)
             CDSGuidance@ pNew = CreateGuidance(vecOrigin, flAngle, szId, index1, dicIndex1, wordIndex1, c, index2, dicIndex2, wordIndex2, t);
             if(dicPlayerCount.exists(szId)){
                 int iCount = int(dicPlayerCount[szId]);
-                if(iCount < 3)
+                if(iCount < uiMaxKeepPerPlayer)
                     dicPlayerCount[szId] = iCount+1;
                 else{
                     CBaseEntity@ pEntity = null;
