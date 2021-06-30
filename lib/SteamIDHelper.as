@@ -7,7 +7,7 @@ enum STEAMID_FLAG{
     SteamID_64,
     SteamID_Community
 }
-class CSteamIDHelper{
+final class CSteamIDHelper{
     STEAMID_FLAG checkSteamID(string sz32){
         //金源格式
         if(sz32.StartsWith("STEAM_0:"))
@@ -24,7 +24,7 @@ class CSteamIDHelper{
         return i64 > 0x0110000200000000 || i64 < 0x0110000100000000 ? SteamID_Invalid : SteamID_64;
     }
     int64 to64(string sz32){
-        switch(checkSteamID(sz32)){
+        switch(this.checkSteamID(sz32)){
             case SteamID_Community: return atoi64(sz32.SubString(5, sz32.Length() - 6)) + 0x0110000100000000;
             case SteamID_32: return atoi64(sz32.SubString(10)) * 2 + atoi64(sz32.SubString(8,1) + 0x0110000100000000);
             case SteamID_64: return atoi64(sz32);
@@ -33,10 +33,10 @@ class CSteamIDHelper{
     }
     //我们是金源游戏，所以X永远为0
     string to32(int64 i64){
-        return checkSteamID(i64) == SteamID_64 ? "STEAM_0:" + i64 % 2 + ":" + ((i64 - 0x0110000100000000) >> 1) : String::EMPTY_STRING;
+        return this.checkSteamID(i64) == SteamID_64 ? "STEAM_0:" + i64 % 2 + ":" + ((i64 - 0x0110000100000000) >> 1) : String::EMPTY_STRING;
     }
     string to32(string szIn){
-        switch(checkSteamID(szIn)){
+        switch(this.checkSteamID(szIn)){
             case SteamID_Community: {
                 int iTemp = atoi(szIn.SubString(5, szIn.Length() - 6));
                 return "STEAM_0:" + (iTemp % 2) + ":" + int(iTemp / 2);
@@ -47,10 +47,10 @@ class CSteamIDHelper{
         return String::EMPTY_STRING;
     }
     string toCommunity(int64 i64){
-        return checkSteamID(i64) != SteamID_64 ? String::EMPTY_STRING : "[U:1:" + (i64 - 0x0110000100000000) + "]";
+        return this.checkSteamID(i64) != SteamID_64 ? String::EMPTY_STRING : "[U:1:" + (i64 - 0x0110000100000000) + "]";
     }
     string toCommunity(string sz32){
-        switch(checkSteamID(sz32)){
+        switch(this.checkSteamID(sz32)){
             case SteamID_Community: return sz32;
             case SteamID_32: return "[U:1:" + string(atoi(sz32.SubString(10)) * 2 + atoi(sz32.SubString(8,1))) + "]";
             case SteamID_64: return this.toCommunity(atoi64(sz32));
