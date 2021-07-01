@@ -94,6 +94,14 @@ Scientist sort algorithm
 
 Phraser of TJA file (太鼓の达人)
 
+### [lib/Logger.as](https://github.com/DrAbcrealone/AngelScripts/blob/master/lib/Logger.as)
+
+Fast output of easily identifiable records in .log file
+
+### [lib/IO.as](https://github.com/DrAbcrealone/AngelScripts/blob/master/lib/IO.as)
+
+Simple and fast implementation of read and write file operation
+
 ### [Thymidine-CSVMidiPlayer](https://github.com/DrAbcrealone/AngelScripts/tree/master/Thymidine-CSVMidiPlayer)
 
 CSV midi player
