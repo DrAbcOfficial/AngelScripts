@@ -2,6 +2,10 @@
 
 Not guaranteeing the stability of these shit.
 
+### [SquardRespawn.as](https://github.com/DrAbcrealone/AngelScripts/blob/master/SquardRespawn.as)
+
+Respawn to your teammates
+
 ### [CrossHairFeedback.as](https://github.com/DrAbcrealone/AngelScripts/blob/master/CrossHairFeedback.as)
 
 Add crosshair feed back when player get/lose scores. (You need to bring your own spr file)
