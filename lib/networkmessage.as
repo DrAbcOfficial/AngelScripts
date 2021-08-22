@@ -423,3 +423,23 @@ void flamethrow()
 		message.WriteCoord(-1659);//z
 	message.End();
 }
+//发送玩家当前武器信息
+//第一位状态为1时，代表获得武器
+//第一位状态为0时，代表失去武器
+//第一位状态为0且第二三位为255时，第一次获得为玩家死亡，第二次获得为玩家从出生点重生，以此来判断是否为被队友复活
+void flamethrow()
+{
+	BEGIN_READ(pbuf, iSize);
+	int iState = READ_BYTE();
+	if (iState > 0)
+	{
+		int iId = READ_SHORT();
+		int iClip = READ_LONG();
+		int iClip2 = READ_LONG();
+	}
+	else
+	{
+		int iId = READ_BYTE();
+		int iFlag2 = READ_BYTE();
+	}
+}
