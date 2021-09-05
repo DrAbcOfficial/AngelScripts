@@ -52,29 +52,13 @@ void teaminfo()
 void scoreinfo()
 {
 	NetworkMessage message( MSG_ALL, NetworkMessages::ScoreInfo );
-	
 		message.WriteByte(g_EntityFuncs.EntIndex(pPlayer.edict()));	//0 玩家序号
-
-
-		message.WriteShort(0);//未知
-
-		message.WriteShort(16300); //与分数有关
-		
-		message.WriteShort(1);	//5 死亡数 反映在队伍死亡上
-		message.WriteShort(0);	//7 与个人死亡数有关 当个人死亡数超过一ushort时使用，将在个人死亡加上a × 65536
-		
-		//未知，与血量显示有关
-		message.WriteByte(255);
-		message.WriteByte(255);
-		message.WriteByte(255);
-		message.WriteByte(255);
-		message.WriteByte(255);
-		message.WriteByte(255);
-		message.WriteByte(255);
-		message.WriteByte(255);
-
-		
-		message.WriteShort(4);	//17 捐助者图标
+		message.WriteFloat(114); //分数
+		message.WriteLong(514);	//5 死亡数
+		message.WriteFloat(19); //血量
+		message.WriteFloat(19); //护甲
+		message.WriteByte(8);  //队伍
+		message.WriteByte(1);	//17 捐助者图标
 		//0 无
 		//1 电撬棍
 		//2 金伍兹
@@ -82,11 +66,10 @@ void scoreinfo()
 		//4 测试者(猎头屑)
 		//5 艺术家(蟾蜍)
 		//6 开发者(SC图标)
-		message.WriteShort(0);	//19 管理员图标
+		message.WriteByte(0);	//19 管理员图标
 		//0 无
 		//1 管理员
 		//2 服主
-
 	message.End();
 }
 //显示已经选中的武器信息
