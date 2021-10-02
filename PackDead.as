@@ -271,7 +271,7 @@ void MapInit()
 		bEnable = false;
 		return;
 	}
-	g_EngineFuncs.CVarSetFloat("mp_dropweapons", 0);
+	//g_EngineFuncs.CVarSetFloat("mp_dropweapons", 0);
 	g_CustomEntityFuncs.RegisterCustomEntity("CLockDeadPlayerPackage", "item_deadplayerpackage");
 	g_Game.PrecacheOther("item_deadplayerpackage");
 
