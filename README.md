@@ -6,6 +6,10 @@ Not guaranteeing the stability of these shit.
 
 Respawn to your teammates
 
+### [BoltSpeedup.as](https://github.com/DrAbcrealone/AngelScripts/blob/master/BoltSpeedup.as)
+
+Bolt speeeeeeeeeeeeeedo up! and trail!
+
 ### [CrossHairFeedback.as](https://github.com/DrAbcrealone/AngelScripts/blob/master/CrossHairFeedback.as)
 
 Add crosshair feed back when player get/lose scores. (You need to bring your own spr file)
