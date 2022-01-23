@@ -2,6 +2,10 @@
 
 Not guaranteeing the stability of these shit.
 
+## [Paranoia weapons and restriction map enhanced](https://github.com/DrAbcOfficial/ParanoiaWeapons)
+
+## [TCL file parser](https://github.com/DrAbcOfficial/tcla)
+
 ### [SquardRespawn.as](https://github.com/DrAbcrealone/AngelScripts/blob/master/SquardRespawn.as)
 
 Respawn to your teammates
