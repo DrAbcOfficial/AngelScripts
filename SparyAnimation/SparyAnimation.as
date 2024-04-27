@@ -33,7 +33,7 @@ HookReturnCode PlayerDecal( CBasePlayer@ pPlayer, const TraceResult& in trace )
 	if(pPlayer is null || !pPlayer.IsNetClient())
         return HOOK_CONTINUE;
     CBasePlayerWeapon@ pWeapon = cast<CBasePlayerWeapon@>(pPlayer.m_hActiveItem.GetEntity());
-    if(pWeapon is null)
+    if(pWeapon is null || pWeapon.pev.classname == "weapon_minigun")
     	return HOOK_CONTINUE;
 
     pPlayer.HolsterWeapon();
